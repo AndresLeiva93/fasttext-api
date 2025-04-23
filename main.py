@@ -8,18 +8,22 @@ import requests
 app = FastAPI()
 
 MODEL_PATH = "cc.es.300.bin"
-DRIVE_ID = "166PX6_dweymTeA7n0Syd3PMpiUZmXvmF"
-CSV_PATH = "IGS - Consolidado.csv"
+import gzip
+import shutil
 
-# Descargar el modelo si no existe
 def descargar_modelo():
     if not os.path.exists(MODEL_PATH):
-        print("⏬ Descargando modelo desde Google Drive...")
-        url = f"https://drive.google.com/uc?export=download&id={DRIVE_ID}"
-        r = requests.get(url)
-        with open(MODEL_PATH, "wb") as f:
-            f.write(r.content)
-        print("✅ Modelo descargado.")
+        print("⏬ Descargando modelo desde FastText...")
+        url = "https://dl.fbaipublicfiles.com/fasttext/vectors-crawl/cc.es.300.bin.gz"
+        r = requests.get(url, stream=True)
+        with open("cc.es.300.bin.gz", "wb") as f:
+            shutil.copyfileobj(r.raw, f)
+        print("📦 Descomprimiendo...")
+        with gzip.open("cc.es.300.bin.gz", "rb") as f_in:
+            with open(MODEL_PATH, "wb") as f_out:
+                shutil.copyfileobj(f_in, f_out)
+        print("✅ Modelo listo.")
+
 
 descargar_modelo()
 
