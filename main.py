@@ -1,18 +1,37 @@
 from fastapi import FastAPI, Request
-import fasttext
 import pandas as pd
+import fasttext
 from scipy.spatial.distance import cosine
+import os
+import requests
 
 app = FastAPI()
 
-ft = fasttext.load_model("cc.es.300.bin")
-df = pd.read_csv("IGS - Consolidado.csv")
+MODEL_PATH = "cc.es.300.bin"
+DRIVE_ID = "166PX6_dweymTeA7n0Syd3PMpiUZmXvmF"
+CSV_PATH = "IGS - Consolidado.csv"
+
+# Descargar el modelo si no existe
+def descargar_modelo():
+    if not os.path.exists(MODEL_PATH):
+        print("⏬ Descargando modelo desde Google Drive...")
+        url = f"https://drive.google.com/uc?export=download&id={DRIVE_ID}"
+        r = requests.get(url)
+        with open(MODEL_PATH, "wb") as f:
+            f.write(r.content)
+        print("✅ Modelo descargado.")
+
+descargar_modelo()
+
+# Cargar modelo y datos
+ft = fasttext.load_model(MODEL_PATH)
+df = pd.read_csv(CSV_PATH)
 marcas = df["NombreProducto"].astype(str).str.lower().tolist()
 vectores = [ft.get_sentence_vector(m) for m in marcas]
 
 @app.get("/")
-def read_root():
-    return {"msg": "API funcionando"}
+def inicio():
+    return {"msg": "API de FastText funcionando 🚀"}
 
 @app.post("/comparar")
 async def comparar(request: Request):
