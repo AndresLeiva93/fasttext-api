@@ -47,8 +47,4 @@ def comparar_marca(data: MarcaEntrada):
 def root():
     return {"msg": "API de FastText funcionando 🚀"}
 
-if __name__ == "__main__":
-    import uvicorn
-    port = int(os.environ.get("PORT", 8000))
-    uvicorn.run("main:app", host="0.0.0.0", port=port)
 
